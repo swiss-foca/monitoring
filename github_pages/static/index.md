@@ -13,6 +13,12 @@ These reports were generated during continuous integration for the most recent P
 * [Demonstrated capabilities](./artifacts/uss_qualifier/reports/uspace/capabilities.html)
 * [Raw report](./artifacts/uss_qualifier/reports/uspace/report.json) (large)
 
+### [U-space CHE Zurich NETRID test configuration](https://github.com/interuss/monitoring/blob/main/monitoring/uss_qualifier/configurations/dev/uspace_che_zurich_netrid.yaml)
+
+* [Sequence view](./artifacts/uss_qualifier/reports/uspace_che_zurich_netrid/sequence)
+* [Tested requirements](./artifacts/uss_qualifier/reports/uspace_che_zurich_netrid/requirements)
+* [Raw report](./artifacts/uss_qualifier/reports/uspace/report.json) (large)
+
 ### [No-op test configuration](https://github.com/interuss/monitoring/blob/main/monitoring/uss_qualifier/configurations/dev/noop.yaml)
 
 * [Raw report](./artifacts/uss_qualifier/reports/noop/report.json) (indented to be human-readable)

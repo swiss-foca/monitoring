@@ -198,6 +198,19 @@ jobs:
         cd monitoring/uss_qualifier
         make test
 
+  uss_qualifier-uspace-che-zurich-netrid:
+    name: uss_qualifier configurations.dev.uspace_che_zurich_netrid tests
+    permissions:
+      contents: read
+    uses: ./.github/workflows/monitoring-test.yml
+    with:
+      name: uss_qualifier-uspace_che_zurich_netrid-test
+      script: |
+        export CONFIG_NAME="configurations.dev.uspace_che_zurich_netrid"
+
+        cd monitoring/uss_qualifier
+        make test
+
   uss_qualifier-minimal_probing-test:
     name: uss_qualifier configurations.dev.minimal_probing tests
     permissions:

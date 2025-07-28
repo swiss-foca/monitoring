@@ -1,0 +1,260 @@
+$content_schema: monitoring/uss_qualifier/configurations/configuration/USSQualifierConfiguration.json
+v1:
+  test_run:
+    resources:
+      resource_declarations:
+        netrid_observation_evaluation_configuration: {$ref: 'library/resources.yaml#/netrid_observation_evaluation_configuration'}
+        utm_client_identity: {$ref: 'library/resources.yaml#/utm_client_identity'}
+        id_generator: {$ref: 'library/resources.yaml#/id_generator'}
+
+        zurich_flights_data:
+          $content_schema: monitoring/uss_qualifier/resources/definitions/ResourceDeclaration.json
+          resource_type: resources.netrid.FlightDataResource
+          specification:
+            kml_source:
+              kml_file:
+                path: file://./test_data/che/rid/zurich.kml
+            flight_start_delay: 5s
+
+        zurich_service_area:
+          $content_schema: monitoring/uss_qualifier/resources/definitions/ResourceDeclaration.json
+          resource_type: resources.netrid.ServiceAreaResource
+          specification:
+            base_url: https://testdummy.interuss.org/interuss/monitoring/uss_qualifier/configurations/dev/library/resources/zurich_service_area
+            footprint:
+              - lat: 47.45237618874023
+                lng: 8.337401667996478
+              - lat: 47.38882810764797
+                lng: 8.343217430398902
+              - lat: 47.3643466256706
+                lng: 8.389932768382156
+              - lat: 47.36323038495268
+                lng: 8.536070011827881
+              - lat: 47.36909451406398
+                lng: 8.580678976356925
+              - lat: 47.4007874493574
+                lng: 8.57764881798931
+              - lat: 47.451319730511365
+                lng: 8.46442103543102
+            altitude_min: 0
+            altitude_max: 1000
+            reference_time: '2025-10-15T00:00:00.123456+00:00'
+            time_start: '2025-10-15T00:00:01.123456+00:00'
+            time_end: '2025-10-15T01:00:01.123456+00:00'
+
+        zurich_planning_area:
+          $content_schema: monitoring/uss_qualifier/resources/definitions/ResourceDeclaration.json
+          resource_type: resources.PlanningAreaResource
+          specification:
+            base_url: https://testdummy.interuss.org/interuss/monitoring/uss_qualifier/configurations/dev/library/resources/zurich_planning_area
+            volume:
+              outline_polygon:
+                vertices:
+                  - lat: 47.45237618874023
+                    lng: 8.337401667996478
+                  - lat: 47.38882810764797
+                    lng: 8.343217430398902
+                  - lat: 47.3643466256706
+                    lng: 8.389932768382156
+                  - lat: 47.36323038495268
+                    lng: 8.536070011827881
+                  - lat: 47.36909451406398
+                    lng: 8.580678976356925
+                  - lat: 47.4007874493574
+                    lng: 8.57764881798931
+                  - lat: 47.451319730511365
+                    lng: 8.46442103543102
+              altitude_lower:
+                value: 0
+                reference: W84
+                units: M
+              altitude_upper:
+                value: 1000
+                reference: W84
+                units: M
+
+        zurich_problematically_big_area: # A huge (as in "too big") area for checks around area sizes
+          $content_schema: monitoring/uss_qualifier/resources/definitions/ResourceDeclaration.json
+          resource_type: resources.VerticesResource
+          specification:
+            vertices:
+              - lat: 48
+                lng: 9
+              - lat: 47
+                lng: 9
+              - lat: 47
+                lng: 8
+              - lat: 48
+                lng: 8
+
+        utm_auth: {$ref: 'library/environment.yaml#/utm_auth'}
+        netrid_service_providers_v22a: {$ref: 'library/environment.yaml#/netrid_service_providers_v22a'}
+        netrid_observers_v22a: {$ref: 'library/environment.yaml#/netrid_observers_v22a'}
+        netrid_dss_instances_v22a: {$ref: 'library/environment.yaml#/netrid_dss_instances_v22a'}
+
+        mock_uss_instance_dp_v22a: {$ref: 'library/environment.yaml#/mock_uss_instance_dp_v22a'}
+        mock_uss_instance_sp_v22a: {$ref: 'library/environment.yaml#/mock_uss_instance_sp_v22a'}
+
+        test_exclusions: { $ref: 'library/resources.yaml#/test_exclusions' }
+        uss_identification: { $ref: 'library/environment.yaml#/uss_identification' }
+    non_baseline_inputs:
+      - v1.test_run.resources.resource_declarations.utm_auth
+      - v1.test_run.resources.resource_declarations.netrid_service_providers_v22a
+      - v1.test_run.resources.resource_declarations.netrid_observers_v22a
+      - v1.test_run.resources.resource_declarations.netrid_dss_instances_v22a
+    action:
+      - test_suite:
+        suite_type: suites.astm.netrid.f3411_22a
+        resources:
+          flights_data: zurich_flights_data
+          service_providers: netrid_service_providers_v22a
+          observers: netrid_observers_v22a
+          mock_uss_dp: mock_uss_instance_dp_v22a
+          mock_uss_sp: mock_uss_instance_sp_v22a
+          evaluation_configuration: netrid_observation_evaluation_configuration
+          dss_instances: netrid_dss_instances_v22a
+          utm_client_identity: utm_client_identity
+          id_generator: id_generator
+          service_area: zurich_service_area
+          problematically_big_area: zurich_problematically_big_area
+          planning_area: zurich_planning_area
+          test_exclusions: test_exclusions
+          uss_identification: uss_identification
+        on_failure: Abort
+      - test_scenario:
+          scenario_type: scenarios.uspace.netrid.msl.MSLAltitude
+          resources:
+            observers: netrid_observers_v22a
+        on_failure: Continue
+    execution:
+      stop_fast: true
+
+  artifacts:
+    raw_report: {}
+    tested_requirements:
+      - report_name: U-Space Network Identification Service
+        requirement_collections:
+          uspace_netrid:
+            requirement_collections:
+              - requirements:
+                - astm.f3411.v22a.NET0030
+                - astm.f3411.v22a.NET0040
+                - astm.f3411.v22a.NET0210
+                - astm.f3411.v22a.NET0220
+                - astm.f3411.v22a.NET0250
+                - astm.f3411.v22a.NET0260,Table1,1
+                - astm.f3411.v22a.NET0260,Table1,2
+                - astm.f3411.v22a.NET0260,Table1,5
+                - astm.f3411.v22a.NET0260,Table1,6
+                - astm.f3411.v22a.NET0260,Table1,10
+                - astm.f3411.v22a.NET0260,Table1,11
+                - astm.f3411.v22a.NET0260,Table1,12
+                - astm.f3411.v22a.NET0260,Table1,16
+                - astm.f3411.v22a.NET0260,Table1,17
+                - astm.f3411.v22a.NET0260,Table1,18
+                - astm.f3411.v22a.NET0260,Table1,19
+                - astm.f3411.v22a.NET0260,Table1,20
+                - astm.f3411.v22a.NET0260,Table1,21
+                - astm.f3411.v22a.NET0270
+                - astm.f3411.v22a.NET0290
+                - astm.f3411.v22a.NET0320
+                - astm.f3411.v22a.NET0340
+                - astm.f3411.v22a.NET0500
+                - astm.f3411.v22a.NET0610
+                - astm.f3411.v22a.NET0710,1
+                - astm.f3411.v22a.NET0710,2
+                - astm.f3411.v22a.NET0740
+                - astm.f3411.v22a.NET0210
+                - astm.f3411.v22a.NET0220
+                - astm.f3411.v22a.NET0240
+                - astm.f3411.v22a.NET0340
+                - astm.f3411.v22a.NET0420
+                - astm.f3411.v22a.NET0430
+                - astm.f3411.v22a.NET0440
+                - astm.f3411.v22a.NET0450
+                - astm.f3411.v22a.NET0460
+                - astm.f3411.v22a.NET0470
+                - astm.f3411.v22a.NET0470,Table1,1
+                - astm.f3411.v22a.NET0470,Table1,2
+                - astm.f3411.v22a.NET0470,Table1,5
+                - astm.f3411.v22a.NET0470,Table1,6
+                - astm.f3411.v22a.NET0470,Table1,10
+                - astm.f3411.v22a.NET0470,Table1,11
+                - astm.f3411.v22a.NET0470,Table1,12
+                - astm.f3411.v22a.NET0470,Table1,16
+                - astm.f3411.v22a.NET0470,Table1,17
+                - astm.f3411.v22a.NET0470,Table1,18
+                - astm.f3411.v22a.NET0470,Table1,19
+                - astm.f3411.v22a.NET0470,Table1,20
+                - astm.f3411.v22a.NET0470,Table1,21
+                - astm.f3411.v22a.NET0480
+                - astm.f3411.v22a.NET0490
+                - astm.f3411.v22a.NET0730
+                - astm.f3411.v22a.DSS0130,A2-6-1,1a
+                - astm.f3411.v22a.DSS0130,A2-6-1,1b
+                - astm.f3411.v22a.DSS0130,A2-6-1,1c
+                - astm.f3411.v22a.DSS0130,A2-6-1,1d
+                - astm.f3411.v22a.DSS0130,A2-6-1,2a
+                - astm.f3411.v22a.DSS0130,A2-6-1,2b
+                - astm.f3411.v22a.DSS0130,A2-6-1,3a
+                - astm.f3411.v22a.DSS0130,A2-6-1,3b
+                - astm.f3411.v22a.DSS0130,A2-6-1,3c
+                - astm.f3411.v22a.DSS0130,A2-6-1,3d
+                - astm.f3411.v22a.DSS0130,A2-6-1,4a
+                - astm.f3411.v22a.DSS0130,A2-6-1,4b
+                - astm.f3411.v22a.DSS0130,A2-6-1,5
+                - astm.f3411.v22a.DSS0130,A2-6-1,6
+                - astm.f3411.v22a.DSS0010
+                - astm.f3411.v22a.DSS0020
+                - astm.f3411.v22a.DSS0030
+                - astm.f3411.v22a.DSS0050
+                - astm.f3411.v22a.DSS0060
+                - astm.f3411.v22a.DSS0070
+                - astm.f3411.v22a.DSS0110
+                - astm.f3411.v22a.DSS0120
+                - astm.f3411.v22a.DSS0130,1
+                - astm.f3411.v22a.DSS0130,2,a
+                - astm.f3411.v22a.DSS0130,2,b
+                - astm.f3411.v22a.DSS0130,2,c
+                - astm.f3411.v22a.DSS0130,2,d
+                - astm.f3411.v22a.DSS0130,2,e
+                - astm.f3411.v22a.DSS0130,2,f
+                - astm.f3411.v22a.DSS0130,3,a
+                - astm.f3411.v22a.DSS0130,3,b
+                - astm.f3411.v22a.DSS0130,3,c
+                - astm.f3411.v22a.DSS0130,3,d
+                - astm.f3411.v22a.DSS0130,3,e
+                - astm.f3411.v22a.DSS0210
+                - astm.f3411.v22a.NET0260,Table1,9
+                - astm.f3411.v22a.NET0470,Table1,9
+                - astm.f3411.v22a.NET0260,Table1,1a
+                - astm.f3411.v22a.NET0470,Table1,1a
+                - astm.f3411.v22a.NET0470,Table1,10
+                - astm.f3411.v22a.NET0470,Table1,11
+                - astm.f3411.v22a.NET0260,Table1,14
+                - astm.f3411.v22a.NET0470,Table1,15
+                - astm.f3411.v22a.NET0470,Table1,19
+                - astm.f3411.v22a.NET0470,Table1,20
+                - astm.f3411.v22a.NET0260,Table1,23
+                - astm.f3411.v22a.NET0470,Table1,24
+                - astm.f3411.v22a.NET0260,Table1,7
+                - astm.f3411.v22a.NET0470,Table1,7
+                - astm.f3411.v22a.NET0470,Table1,5
+              - requirements:
+                - uspace.article8.MSLAltitude
+
+        participant_requirements:
+          uss1: uspace_netrid
+          uss2: uspace_netrid
+
+    sequence_view: {}
+  validation:
+    criteria:
+      - $ref: ./library/validation.yaml#/execution_error_none
+      - $ref: ./library/validation.yaml#/failed_check_severity_max_low
+      - applicability:
+          skipped_actions: {}
+        pass_condition:
+          elements:
+            count:
+              equal_to: 2 # 2 DatastoreAccess scenarios are skipped
