@@ -1,5 +1,6 @@
 import json
 from typing import List
+from jsonschema import validate
 
 from implicitdict import ImplicitDict, StringBasedDateTime
 # from uas_standards.eurocae_ed318 import UASZoneVersion
@@ -13,12 +14,6 @@ from monitoring.uss_qualifier.resources.eurocae.ed318.source_schema import (
 from monitoring.uss_qualifier.scenarios.scenario import TestScenario
 from monitoring.uss_qualifier.suites.suite import ExecutionContext
 
-to_validate = (
-        ("Schema_GeoZones", True),
-        ("Schema_GeoZoneProperties", True),
-        ("Schema_GeoZoneTimePeriod", True),
-        ("Schema_GeoZoneAuthority", True),
-    )
 
 # TODO: When the format is confirmed, this should be moved to uas_standards.eurocae_ed269
 # class ED318SchemaFile(ImplicitDict):
@@ -68,26 +63,31 @@ class SourceDataModelValidation(TestScenario):
             "Valid JSON", [self.source_schema.specification.url],
         ) as check:
             try:
-                data = json.loads(self.source_schema.raw_schema)
+                schema = json.loads(self.source_schema.raw_schema)
             except json.decoder.JSONDecodeError as e:
                 check.record_failed(
                     summary="Unable to deserialize the document as JSON",
                     details=str(e),
                 )
 
+        try:
+            validate(instance=data, schema=schema)
+            print("JSON is valid!")
+        except ValidationError as e:
+            print(f"JSON validation error: {e.message}")
+
         # if data:
         #     with self.check(
         #          "Valid schema and values", [self.source_document.specification.url]
         #      ) as check:
         #         try:
-        #             ImplicitDict.parse(data, ED318SchemaFile)
+        #             ImplicitDict.parse(data, schema)
             
         #         except ValueError as e:
         #             check.record_failed(
         #                  summary="Invalid format error",
         #                  details=str(e),
         #              )
-
 
         self.end_test_step()
         self.end_test_case()
