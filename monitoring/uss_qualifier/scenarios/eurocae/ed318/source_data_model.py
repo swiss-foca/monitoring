@@ -3,7 +3,6 @@ from typing import List
 from jsonschema import validate
 
 from implicitdict import ImplicitDict, StringBasedDateTime
-# from uas_standards.eurocae_ed318 import UASZoneVersion
 
 from monitoring.uss_qualifier.resources.eurocae.ed318.source_document import (
     SourceDocument,
@@ -13,13 +12,6 @@ from monitoring.uss_qualifier.resources.eurocae.ed318.source_schema import (
 )
 from monitoring.uss_qualifier.scenarios.scenario import TestScenario
 from monitoring.uss_qualifier.suites.suite import ExecutionContext
-
-
-# TODO: When the format is confirmed, this should be moved to uas_standards.eurocae_ed269
-# class ED318SchemaFile(ImplicitDict):
-#    formatVersion: str
-#    createdAt: StringBasedDateTime
-#    UASZoneList: List[UASZoneVersion]
 
 
 class SourceDataModelValidation(TestScenario):
@@ -69,12 +61,18 @@ class SourceDataModelValidation(TestScenario):
                     summary="Unable to deserialize the document as JSON",
                     details=str(e),
                 )
+
         if data and schema:
-            try:
-                validate(instance=data, schema=schema)
-                print("JSON is valid!")
-            except ValidationError as e:
-                print(f"JSON validation error: {e.message}")
+            with self.check(
+                "Valid schema and values", [self.source_document.specification.url]
+            ) as check:
+                try:
+                    validate(instance=data, schema=schema)
+                except ValueError as e:
+                    check.record_failed(
+                        summary="Invalid format error",
+                        details=str(e),
+                    )
 
         self.end_test_step()
         self.end_test_case()
