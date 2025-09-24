@@ -69,25 +69,12 @@ class SourceDataModelValidation(TestScenario):
                     summary="Unable to deserialize the document as JSON",
                     details=str(e),
                 )
-
-        try:
-            validate(instance=data, schema=schema)
-            print("JSON is valid!")
-        except ValidationError as e:
-            print(f"JSON validation error: {e.message}")
-
-        # if data:
-        #     with self.check(
-        #          "Valid schema and values", [self.source_document.specification.url]
-        #      ) as check:
-        #         try:
-        #             ImplicitDict.parse(data, schema)
-            
-        #         except ValueError as e:
-        #             check.record_failed(
-        #                  summary="Invalid format error",
-        #                  details=str(e),
-        #              )
+        if data and schema:
+            try:
+                validate(instance=data, schema=schema)
+                print("JSON is valid!")
+            except ValidationError as e:
+                print(f"JSON validation error: {e.message}")
 
         self.end_test_step()
         self.end_test_case()
